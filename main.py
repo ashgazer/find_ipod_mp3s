@@ -1,4 +1,5 @@
 import argparse
+import csv
 import glob
 from typing import List
 
@@ -16,14 +17,19 @@ def load_mp3_tags(file: str) -> EasyID3:
 
 
 def create_db_csv(mp3_files: List[str]) -> None:
+    headers = ["artist", "album", "title", "dir"]
     with open("mp3_data.csv", "w") as f:
+        f.write(",".join(headers) + "\n")
         try:
             for mp3 in mp3_files:
                 mp3_tags = load_mp3_tags(mp3)
                 mp3_values = dict(mp3_tags)
                 mp3_values = [mp3_values[tag][0] for tag in VALID_TAGS]
                 mp3_values.append(mp3)
-                f.write(",".join(mp3_values) + "\n")
+                csv_writer = csv.writer(
+                    f, delimiter=",", quotechar='"', quoting=csv.QUOTE_ALL,
+                )
+                csv_writer.writerow(mp3_values)
 
         except Exception as e:
             print(e)
